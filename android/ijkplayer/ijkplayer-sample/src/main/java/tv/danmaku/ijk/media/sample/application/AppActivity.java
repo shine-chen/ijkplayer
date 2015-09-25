@@ -23,6 +23,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import tv.danmaku.ijk.media.sample.R;
+import tv.danmaku.ijk.media.sample.activities.RTMPDemoActivity;
 import tv.danmaku.ijk.media.sample.activities.RecentMediaActivity;
 import tv.danmaku.ijk.media.sample.activities.SettingsActivity;
 
@@ -45,11 +46,16 @@ public class AppActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            SettingsActivity.intentTo(this);
-            return true;
-        } else if (id == R.id.action_recent) {
-            RecentMediaActivity.intentTo(this);
+        switch (id) {
+            case R.id.action_settings:
+                SettingsActivity.intentTo(this);
+                return true;
+            case R.id.action_recent:
+                RecentMediaActivity.intentTo(this);
+                return true;
+            case R.id.action_rtmp:
+                RTMPDemoActivity.intentTo(this);
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
