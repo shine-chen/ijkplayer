@@ -519,6 +519,11 @@ static int decoder_decode_frame(FFPlayer *ffp, Decoder *d, AVFrame *frame, AVSub
                     } else {
                         frame->pts = frame->pkt_dts;
                     }
+
+                    // TODO: remove this debug info
+                    // av_log(ffp, AV_LOG_DEBUG, "frame->pkt_pts=%ld", frame->pkt_pts);
+                    // av_log(ffp, AV_LOG_DEBUG, "frame->pkt_dts=%ld", frame->pkt_dts);
+                    // av_log(ffp, AV_LOG_DEBUG, "frame->pts=%ld", frame->pts);
                 }
                 }
                 break;
@@ -2298,6 +2303,9 @@ static int stream_component_open(FFPlayer *ffp, int stream_index)
             goto fail;
         decoder_start(&is->viddec, video_thread, ffp, "ff_video_dec");
         is->queue_attachments_req = 1;
+
+        // TODO: remove the debug info
+        // av_log(ffp, AV_LOG_DEBUG, "video_st->start_time=%ld", is->video_st->start_time);
 
         if(is->video_st->avg_frame_rate.den && is->video_st->avg_frame_rate.num) {
             double fps = av_q2d(is->video_st->avg_frame_rate);

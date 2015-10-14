@@ -1,4 +1,4 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -24,26 +24,25 @@
 
     <TextView
         android:id="@+id/toast_text_view"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="left|center_vertical"
+        android:layout_gravity="left|top"
+        android:layout_alignParentBottom="true"
         android:background="@color/ijk_transparent_dark"
         android:textColor="@android:color/white"
-        android:padding="16dp"
-        android:textSize="16sp"
+        android:textSize="12sp"
         android:visibility="gone" />
 
     <TextView
         android:id="@+id/info_text_view"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:maxWidth="250dp"
-        android:layout_gravity="right|center_vertical"
+        android:layout_gravity="right|bottom"
+        android:layout_alignParentBottom="true"
         android:gravity="right"
         android:background="@color/ijk_transparent_dark"
         android:textColor="@android:color/white"
-        android:padding="16dp"
-        android:textSize="16sp"
+        android:textSize="12sp"
         android:visibility="visible" />
 
-</FrameLayout>
+</RelativeLayout>

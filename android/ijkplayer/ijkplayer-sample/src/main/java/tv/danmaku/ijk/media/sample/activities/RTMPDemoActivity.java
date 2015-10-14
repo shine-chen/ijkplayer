@@ -32,8 +32,10 @@ public class RTMPDemoActivity extends AppCompatActivity {
     private static final String TAG = "RTMPDemoActivity";
 
     static private final String VIDEO_LOW = "rtmp://122.147.46.161/edgecast/xAUS1x";
-    static private final String VIDEO_MEDIUM = "rtmp://122.147.46.161/edgecast/xAUS1x_500";
+//    static private final String VIDEO_MEDIUM = "rtmp://122.147.46.161/edgecast/xAUS1x_500";
     static private final String VIDEO_HIGH = "rtmp://122.147.46.161/edgecast/xAUS1x_700";
+
+    static private final String VIDEO_MEDIUM = "rtmp://10.10.10.139:1935/live/livestream";
 
     static private final String [] VIDEO_SOURCES = {VIDEO_LOW, VIDEO_MEDIUM, VIDEO_HIGH};
     static private final long INTERVAL_RANDOM_PLAYBACK = 20000;
@@ -47,6 +49,8 @@ public class RTMPDemoActivity extends AppCompatActivity {
 
     private static final long PREPARE_TIMEOUT_MILLIS = 6000;
     private long mPrepareStartTime = 0;
+    private long mBufferingStartTime = 0;
+    private long mBufferingTime = 0;
     private Runnable mPrepareTimeoutMonitor = null;
 
     private Handler mHandler;
@@ -168,12 +172,41 @@ public class RTMPDemoActivity extends AppCompatActivity {
 
                 long prepareTime = System.currentTimeMillis() - mPrepareStartTime;
 
-                updateInfo("Source Changes #" + ++mDataSourceChanges + "\nCompleted in " + prepareTime + " ms\n" + mp.getDataSource());
+                StringBuilder sb = new StringBuilder();
+                sb.append("Source Changes #");
+                sb.append(++mDataSourceChanges).append("\n");
+                sb.append("Completed in ");
+                sb.append(prepareTime).append("ms\n");
+                sb.append("video size = ").append(mp.getVideoWidth()).append("x").append(mp.getVideoHeight()).append("\n");
+                sb.append(mp.getDataSource());
+                updateInfo(sb.toString());
+
 
                 if (mPrepareTimeoutMonitor != null) {
                     mHandler.removeCallbacks(mPrepareTimeoutMonitor);
                     mPrepareTimeoutMonitor = null;
                 }
+            }
+        });
+
+        mVideoView.setOnInfoListener(new IMediaPlayer.OnInfoListener() {
+            @Override
+            public boolean onInfo(IMediaPlayer mp, int what, int extra) {
+
+                Log.d(TAG, "onInfo: " + what);
+
+                switch (what) {
+                    case IMediaPlayer.MEDIA_INFO_BUFFERING_START:
+                        mBufferingStartTime = System.currentTimeMillis();
+                        break;
+                    case IMediaPlayer.MEDIA_INFO_BUFFERING_END:
+                        mBufferingTime = System.currentTimeMillis() - mBufferingStartTime;
+                        if (mp.isPlaying()) {
+                            appendInfo("Buffering completed in " + mBufferingTime + " ms");
+                        }
+                        break;
+                }
+                return false;
             }
         });
     }
@@ -222,6 +255,10 @@ public class RTMPDemoActivity extends AppCompatActivity {
 
     private void updateInfo(String info) {
         mInfoTextView.setText(info);
+    }
+
+    private void appendInfo(String info) {
+        mInfoTextView.setText(mInfoTextView.getText() + "\n" + info);
     }
 
     private void randomPlay() {
