@@ -3833,7 +3833,7 @@ void ffp_check_buffering_l(FFPlayer *ffp)
 #ifdef FFP_NOTIFY_BANDWIDTH
     int64_t bw_measure_dur = SDL_GetTickHR() - bw_measure_st;
     int64_t bandwidth = 1000 * cached_size / bw_measure_dur;
-    av_log(ffp, AV_LOG_DEBUG, "bandwidth=%"PRId64"\n", bandwidth);
+    // av_log(ffp, AV_LOG_DEBUG, "bandwidth=%"PRId64"\n", bandwidth);
     ffp_notify_msg2(ffp, FFP_MSG_BANDWIDTH_UPDATE, (int) bandwidth);
 
     bw_measure_st = SDL_GetTickHR();
