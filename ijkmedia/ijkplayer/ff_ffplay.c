@@ -752,6 +752,7 @@ static void free_picture(Frame *vp)
 #ifdef FFP_SHOW_FPS
 static int g_fps_counter = 0;
 static int64_t g_fps_total_time = 0;
+static int64_t g_fps_start = 0;
 #endif
 static void video_image_display2(FFPlayer *ffp)
 {
@@ -761,7 +762,9 @@ static void video_image_display2(FFPlayer *ffp)
     vp = frame_queue_peek(&is->pictq);
     if (vp->bmp) {
 #ifdef FFP_SHOW_FPS
-        int64_t start = SDL_GetTickHR();
+        if (g_fps_start == 0) {
+            g_fps_start = SDL_GetTickHR();
+        }
 #endif
         SDL_VoutDisplayYUVOverlay(ffp->vout, vp->bmp);
         if (!ffp->first_video_frame_rendered) {
@@ -769,20 +772,29 @@ static void video_image_display2(FFPlayer *ffp)
             ffp_notify_msg1(ffp, FFP_MSG_VIDEO_RENDERING_START);
         }
 #ifdef FFP_SHOW_FPS
-        int64_t dur = SDL_GetTickHR() - start;
-        g_fps_total_time += dur;
+        int64_t dur = SDL_GetTickHR() - g_fps_start;
         g_fps_counter++;
-        int64_t avg_frame_time = 0;
-        if (g_fps_counter > 0)
-            avg_frame_time = g_fps_total_time / g_fps_counter;
-        double fps = 0;
-        if (avg_frame_time > 0)
-            fps = 1.0f / avg_frame_time * 1000;
-        av_log(ffp, AV_LOG_DEBUG, "fps:  [%f][%d] %"PRId64" ms/frame, fps=%f, +%"PRId64"\n",
-            vp->pts, g_fps_counter, (int64_t)avg_frame_time, fps, dur);
-        if (g_fps_total_time >= FFP_XPS_PERIOD) {
-            g_fps_total_time -= avg_frame_time;
-            g_fps_counter--;
+        if (dur > 100) {
+            g_fps_total_time += dur;
+            g_fps_start = 0;
+            int64_t avg_frame_time = 0;
+            if (g_fps_counter > 0)
+                avg_frame_time = g_fps_total_time / g_fps_counter;
+            double fps = 0;
+            if (avg_frame_time > 0)
+                fps = 1.0f / avg_frame_time * 1000;
+            if (FFP_SHOW_FPS & FFP_SHOW_FPS_LOG) {
+                av_log(ffp, AV_LOG_DEBUG, "fps:  [%f][%d] %"PRId64" ms/frame, fps=%f, +%"PRId64"\n",
+                    vp->pts, g_fps_counter, (int64_t)avg_frame_time, fps, dur);
+            }
+            if (FFP_SHOW_FPS & FFP_SHOW_FPS_NOTIFY) {
+                ffp_notify_msg2(ffp, FFP_MSG_FPS_UPDATE, (int) fps);
+            }
+
+            if (g_fps_total_time >= FFP_XPS_PERIOD) {
+                g_fps_total_time -= avg_frame_time * g_fps_counter;
+                g_fps_counter = 0;
+            }
         }
 #endif
     }

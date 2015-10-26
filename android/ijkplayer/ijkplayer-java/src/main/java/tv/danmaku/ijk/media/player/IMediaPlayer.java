@@ -44,6 +44,11 @@ public interface IMediaPlayer {
     int MEDIA_INFO_TIMED_TEXT_ERROR = 900;
     int MEDIA_INFO_VIDEO_ROTATION_CHANGED = 10001;
 
+    /*
+     * Custom events
+     */
+    int MEDIA_INFO_FPS_UPDATE = 2001;
+
     int MEDIA_ERROR_UNKNOWN = 1;
     int MEDIA_ERROR_SERVER_DIED = 100;
     int MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK = 200;

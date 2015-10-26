@@ -131,6 +131,10 @@ enum media_info_type {
 
     //100xx
     MEDIA_INFO_VIDEO_ROTATION_CHANGED = 10001,
+
+    // Custom types
+    // FPS
+    MEDIA_INFO_FPS_UPDATE = 2001,
 };
 
 typedef struct ijkmp_mediacodecinfo_context

@@ -32,10 +32,10 @@ public class RTMPDemoActivity extends AppCompatActivity {
     private static final String TAG = "RTMPDemoActivity";
 
     static private final String VIDEO_LOW = "rtmp://122.147.46.161/edgecast/xAUS1x";
-//    static private final String VIDEO_MEDIUM = "rtmp://122.147.46.161/edgecast/xAUS1x_500";
+    static private final String VIDEO_MEDIUM = "rtmp://122.147.46.161/edgecast/xAUS1x_500";
     static private final String VIDEO_HIGH = "rtmp://122.147.46.161/edgecast/xAUS1x_700";
 
-    static private final String VIDEO_MEDIUM = "rtmp://10.10.10.139:1935/live/livestream";
+//    static private final String VIDEO_MEDIUM = "rtmp://10.10.10.139:1935/live/livestream";
 
     static private final String [] VIDEO_SOURCES = {VIDEO_LOW, VIDEO_MEDIUM, VIDEO_HIGH};
     static private final long INTERVAL_RANDOM_PLAYBACK = 20000;
@@ -44,6 +44,8 @@ public class RTMPDemoActivity extends AppCompatActivity {
     private IjkVideoView mVideoView;
     private TextView mToastTextView;
     private TextView mInfoTextView;
+    private TextView mBufferingTextView;
+    private TextView mFpsTextView;
 
     private boolean mBackPressed;
 
@@ -83,6 +85,8 @@ public class RTMPDemoActivity extends AppCompatActivity {
 
         mToastTextView = (TextView) findViewById(R.id.toast_text_view);
         mInfoTextView = (TextView) findViewById(R.id.info_text_view);
+        mBufferingTextView = (TextView) findViewById(R.id.buffering_text_view);
+        mFpsTextView = (TextView) findViewById(R.id.info_fps);
 
         // init player
         IjkMediaPlayer.loadLibrariesOnce(null);
@@ -175,7 +179,7 @@ public class RTMPDemoActivity extends AppCompatActivity {
                 StringBuilder sb = new StringBuilder();
                 sb.append("Source Changes #");
                 sb.append(++mDataSourceChanges).append("\n");
-                sb.append("Completed in ");
+                sb.append("Prepare Completed in ");
                 sb.append(prepareTime).append("ms\n");
                 sb.append("video size = ").append(mp.getVideoWidth()).append("x").append(mp.getVideoHeight()).append("\n");
                 sb.append(mp.getDataSource());
@@ -193,17 +197,19 @@ public class RTMPDemoActivity extends AppCompatActivity {
             @Override
             public boolean onInfo(IMediaPlayer mp, int what, int extra) {
 
-                Log.d(TAG, "onInfo: " + what);
-
                 switch (what) {
                     case IMediaPlayer.MEDIA_INFO_BUFFERING_START:
                         mBufferingStartTime = System.currentTimeMillis();
                         break;
                     case IMediaPlayer.MEDIA_INFO_BUFFERING_END:
                         mBufferingTime = System.currentTimeMillis() - mBufferingStartTime;
-                        if (mp.isPlaying()) {
-                            appendInfo("Buffering completed in " + mBufferingTime + " ms");
-                        }
+                        mBufferingTextView.setText("Buffering time " + mBufferingTime + " ms");
+                        break;
+                    case IMediaPlayer.MEDIA_INFO_NETWORK_BANDWIDTH:
+                        Log.d(TAG, "onInfo: MEDIA_INFO_NETWORK_BANDWIDTH " + extra);
+                        break;
+                    case IMediaPlayer.MEDIA_INFO_FPS_UPDATE:
+                        mFpsTextView.setText("FPS = " + extra);
                         break;
                 }
                 return false;
