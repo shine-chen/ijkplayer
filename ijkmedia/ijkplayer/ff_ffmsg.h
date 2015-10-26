@@ -47,6 +47,8 @@
 #define FFP_REQ_PAUSE                       20002
 #define FFP_REQ_SEEK                        20003
 
+/* Custom messages */
 #define FFP_MSG_FPS_UPDATE					2001
+#define FFP_MSG_BANDWIDTH_UPDATE			2002
 
 #endif

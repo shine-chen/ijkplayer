@@ -46,6 +46,7 @@ public class RTMPDemoActivity extends AppCompatActivity {
     private TextView mInfoTextView;
     private TextView mBufferingTextView;
     private TextView mFpsTextView;
+    private TextView mBandwidthTextView;
 
     private boolean mBackPressed;
 
@@ -87,6 +88,7 @@ public class RTMPDemoActivity extends AppCompatActivity {
         mInfoTextView = (TextView) findViewById(R.id.info_text_view);
         mBufferingTextView = (TextView) findViewById(R.id.buffering_text_view);
         mFpsTextView = (TextView) findViewById(R.id.info_fps);
+        mBandwidthTextView = (TextView) findViewById(R.id.info_bandwidth);
 
         // init player
         IjkMediaPlayer.loadLibrariesOnce(null);
@@ -185,10 +187,15 @@ public class RTMPDemoActivity extends AppCompatActivity {
                 sb.append(mp.getDataSource());
                 updateInfo(sb.toString());
 
-
                 if (mPrepareTimeoutMonitor != null) {
                     mHandler.removeCallbacks(mPrepareTimeoutMonitor);
                     mPrepareTimeoutMonitor = null;
+                }
+
+                // Seek
+                if (mVideoView.getDuration() < prepareTime) {
+                    Log.d(TAG, "seek to: " + prepareTime);
+                    mVideoView.seekTo((int) prepareTime);
                 }
             }
         });
@@ -207,9 +214,10 @@ public class RTMPDemoActivity extends AppCompatActivity {
                         break;
                     case IMediaPlayer.MEDIA_INFO_NETWORK_BANDWIDTH:
                         Log.d(TAG, "onInfo: MEDIA_INFO_NETWORK_BANDWIDTH " + extra);
+                        mBandwidthTextView.setText(String.format("Bandwidth %9d Bps", extra));
                         break;
                     case IMediaPlayer.MEDIA_INFO_FPS_UPDATE:
-                        mFpsTextView.setText("FPS = " + extra);
+                        mFpsTextView.setText(String.format("FPS %4d", extra));
                         break;
                 }
                 return false;

@@ -38,9 +38,17 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_alignParentBottom="true"
+        android:padding="10dp"
         android:background="@color/ijk_transparent_dark">
         <TextView
             android:id="@+id/info_fps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"/>
+        <TextView
+            android:id="@+id/info_bandwidth"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="right"

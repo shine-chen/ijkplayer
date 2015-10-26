@@ -3703,6 +3703,11 @@ void ffp_toggle_buffering(FFPlayer *ffp, int start_buffering)
     SDL_UnlockMutex(ffp->is->play_mutex);
 }
 
+
+#ifdef FFP_NOTIFY_BANDWIDTH
+    static int64_t bw_measure_st = 0;
+#endif
+
 void ffp_check_buffering_l(FFPlayer *ffp)
 {
     VideoState *is            = ffp->is;
@@ -3824,6 +3829,15 @@ void ffp_check_buffering_l(FFPlayer *ffp)
             }
         }
     }
+
+#ifdef FFP_NOTIFY_BANDWIDTH
+    int64_t bw_measure_dur = SDL_GetTickHR() - bw_measure_st;
+    int64_t bandwidth = 1000 * cached_size / bw_measure_dur;
+    av_log(ffp, AV_LOG_DEBUG, "bandwidth=%"PRId64"\n", bandwidth);
+    ffp_notify_msg2(ffp, FFP_MSG_BANDWIDTH_UPDATE, (int) bandwidth);
+
+    bw_measure_st = SDL_GetTickHR();
+#endif
 }
 
 int ffp_video_thread(FFPlayer *ffp)

@@ -768,6 +768,9 @@ static void message_loop_n(JNIEnv *env, IjkMediaPlayer *mp)
         case FFP_MSG_FPS_UPDATE:
             post_event(env, weak_thiz, MEDIA_INFO, MEDIA_INFO_FPS_UPDATE, msg.arg1);
             break;
+        case FFP_MSG_BANDWIDTH_UPDATE:
+            post_event(env, weak_thiz, MEDIA_INFO, MEDIA_INFO_NETWORK_BANDWIDTH, msg.arg1);
+            break;
         default:
             ALOGE("unknown FFP_MSG_xxx(%d)\n", msg.what);
             break;
