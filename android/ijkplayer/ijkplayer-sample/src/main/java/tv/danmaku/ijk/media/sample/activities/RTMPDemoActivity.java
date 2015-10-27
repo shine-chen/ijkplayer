@@ -18,6 +18,7 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import tv.danmaku.ijk.media.player.IMediaPlayer;
+import tv.danmaku.ijk.media.player.IjkMediaMeta;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 import tv.danmaku.ijk.media.sample.R;
 import tv.danmaku.ijk.media.sample.widget.media.AndroidMediaController;
@@ -184,6 +185,12 @@ public class RTMPDemoActivity extends AppCompatActivity {
                 sb.append("Prepare Completed in ");
                 sb.append(prepareTime).append("ms\n");
                 sb.append("video size = ").append(mp.getVideoWidth()).append("x").append(mp.getVideoHeight()).append("\n");
+                sb.append("Average Bitrate = ").append(mp.getBitRate()).append(" bps \n");
+                sb.append("Average Bitrate = ").append(mp.getBitRate() / 8 / 1024).append(" KBps \n");
+                if (mp.getMediaInfo() != null && mp.getMediaInfo().mMeta != null) {
+                    int metaBitrate= mp.getMediaInfo().mMeta.getInt(IjkMediaMeta.IJKM_KEY_BITRATE);
+                    sb.append("Metadata Bitrate =").append(metaBitrate).append("\n");
+                }
                 sb.append(mp.getDataSource());
                 updateInfo(sb.toString());
 
@@ -212,10 +219,14 @@ public class RTMPDemoActivity extends AppCompatActivity {
                         mBufferingTime = System.currentTimeMillis() - mBufferingStartTime;
                         mBufferingTextView.setText("Buffering time " + mBufferingTime + " ms");
                         break;
-                    case IMediaPlayer.MEDIA_INFO_NETWORK_BANDWIDTH:
+                    case IMediaPlayer.MEDIA_INFO_NETWORK_BANDWIDTH: {
                         Log.d(TAG, "onInfo: MEDIA_INFO_NETWORK_BANDWIDTH " + extra);
-                        mBandwidthTextView.setText(String.format("Bandwidth %9d Bps", extra));
+                        StringBuilder sb = new StringBuilder();
+                        sb.append(String.format("Bandwidth %8d bps", extra)).append("\n");
+                        sb.append(String.format("Bandwidth %8.2f KB/s", ((double) extra) / 8 / 1024));
+                        mBandwidthTextView.setText(sb.toString());
                         break;
+                    }
                     case IMediaPlayer.MEDIA_INFO_FPS_UPDATE:
                         mFpsTextView.setText(String.format("FPS %4d", extra));
                         break;

@@ -2350,6 +2350,11 @@ static int stream_component_open(FFPlayer *ffp, int stream_index)
     default:
         break;
     }
+
+    // Log bitrate
+    av_log(ffp, AV_LOG_WARNING, "bitrate = %d", avctx->bit_rate);
+    
+
 fail:
     av_dict_free(&opts);
 
@@ -2455,6 +2460,7 @@ static int read_thread(void *arg)
     int last_error = 0;
     int64_t prev_io_tick_counter = 0;
     int64_t io_tick_counter = 0;
+    int bitrate = 0;
 
     memset(st_index, -1, sizeof(st_index));
     is->last_video_stream = is->video_stream = -1;
@@ -2623,11 +2629,13 @@ static int read_thread(void *arg)
     /* open the streams */
     if (st_index[AVMEDIA_TYPE_AUDIO] >= 0) {
         stream_component_open(ffp, st_index[AVMEDIA_TYPE_AUDIO]);
+        bitrate += is->audio_st->codec->bit_rate;
     }
 
     ret = -1;
     if (st_index[AVMEDIA_TYPE_VIDEO] >= 0) {
         ret = stream_component_open(ffp, st_index[AVMEDIA_TYPE_VIDEO]);
+        bitrate += is->video_st->codec->bit_rate;
     }
     if (is->show_mode == SHOW_MODE_NONE)
         is->show_mode = ret >= 0 ? SHOW_MODE_VIDEO : SHOW_MODE_RDFT;
@@ -2663,6 +2671,7 @@ static int read_thread(void *arg)
         AVCodecContext *avctx = is->video_st->codec;
         ffp_notify_msg3(ffp, FFP_MSG_VIDEO_SIZE_CHANGED, avctx->width, avctx->height);
         ffp_notify_msg3(ffp, FFP_MSG_SAR_CHANGED, avctx->sample_aspect_ratio.num, avctx->sample_aspect_ratio.den);
+        ffp_notify_msg2(ffp, FFP_MSG_BITRATE_CHANGED, bitrate);
     }
     ffp->prepared = true;
     ffp_notify_msg1(ffp, FFP_MSG_PREPARED);
@@ -3705,7 +3714,8 @@ void ffp_toggle_buffering(FFPlayer *ffp, int start_buffering)
 
 
 #ifdef FFP_NOTIFY_BANDWIDTH
-    static int64_t bw_measure_st = 0;
+    static int64_t g_bw_measure_st = 0;
+    static int64_t g_bw_buf_time_position = 0;
 #endif
 
 void ffp_check_buffering_l(FFPlayer *ffp)
@@ -3748,7 +3758,7 @@ void ffp_check_buffering_l(FFPlayer *ffp)
             av_log(ffp, AV_LOG_DEBUG, "video cache=%%%d milli:(%d/%d) bytes:(%d/%d) packet:(%d/%d)\n", video_cached_percent,
                   (int)video_cached_duration, hwm_in_ms,
                   is->videoq.size, hwm_in_bytes,
-                  is->audioq.nb_packets, MIN_FRAMES);
+                  is->videoq.nb_packets, MIN_FRAMES);
 #endif
         }
 
@@ -3831,12 +3841,20 @@ void ffp_check_buffering_l(FFPlayer *ffp)
     }
 
 #ifdef FFP_NOTIFY_BANDWIDTH
-    int64_t bw_measure_dur = SDL_GetTickHR() - bw_measure_st;
-    int64_t bandwidth = 1000 * cached_size / bw_measure_dur;
+    int bitrate = 0;
+    if (is->audio_st)
+        bitrate += is->audio_st->codec->bit_rate;
+    if (is->video_st)
+        bitrate += is->video_st->codec->bit_rate;
+
+    int64_t bw_measure_dur = SDL_GetTickHR() - g_bw_measure_st;
+    int64_t buf_time_position_delta = buf_time_position - g_bw_buf_time_position;
+    int64_t bandwidth = buf_time_position_delta * bitrate / bw_measure_dur;
     // av_log(ffp, AV_LOG_DEBUG, "bandwidth=%"PRId64"\n", bandwidth);
     ffp_notify_msg2(ffp, FFP_MSG_BANDWIDTH_UPDATE, (int) bandwidth);
 
-    bw_measure_st = SDL_GetTickHR();
+    g_bw_measure_st = SDL_GetTickHR();
+    g_bw_buf_time_position = buf_time_position;
 #endif
 }
 

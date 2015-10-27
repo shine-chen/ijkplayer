@@ -88,6 +88,8 @@ public interface IMediaPlayer {
 
     int getVideoHeight();
 
+    int getBitRate();
+
     boolean isPlaying();
 
     void seekTo(long msec) throws IllegalStateException;

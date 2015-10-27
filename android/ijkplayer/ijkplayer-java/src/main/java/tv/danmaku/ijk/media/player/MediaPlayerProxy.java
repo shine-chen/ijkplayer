@@ -110,6 +110,11 @@ public class MediaPlayerProxy implements IMediaPlayer {
     }
 
     @Override
+    public int getBitRate() {
+        return mBackEndMediaPlayer.getBitRate();
+    }
+
+    @Override
     public boolean isPlaying() {
         return mBackEndMediaPlayer.isPlaying();
     }
