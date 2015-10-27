@@ -48,6 +48,7 @@ public interface IMediaPlayer {
      * Custom events
      */
     int MEDIA_INFO_FPS_UPDATE = 2001;
+    int MEDIA_INFO_FRAME_DORPS_UPDATE = 2004;
 
     int MEDIA_ERROR_UNKNOWN = 1;
     int MEDIA_ERROR_SERVER_DIED = 100;

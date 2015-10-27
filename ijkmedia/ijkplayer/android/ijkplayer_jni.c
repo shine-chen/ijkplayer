@@ -774,6 +774,9 @@ static void message_loop_n(JNIEnv *env, IjkMediaPlayer *mp)
         case FFP_MSG_BITRATE_CHANGED:
             post_event(env, weak_thiz, MEDIA_SET_BITRATE, msg.arg1, msg.arg2);
             break;
+        case FFP_MSG_FRAME_DROPS_UPDATE:
+            post_event(env, weak_thiz, MEDIA_INFO, MEDIA_INFO_FRAME_DORPS_UPDATE, msg.arg1);
+            break;
         default:
             ALOGE("unknown FFP_MSG_xxx(%d)\n", msg.what);
             break;

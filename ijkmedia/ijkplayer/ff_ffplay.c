@@ -3463,6 +3463,9 @@ int ffp_prepare_async_l(FFPlayer *ffp, const char *file_name)
             return -1;
     }
 
+    // Set to show status
+    // ffp->show_status = true;
+
     VideoState *is = stream_open(ffp, file_name, NULL);
     if (!is) {
         av_log(NULL, AV_LOG_WARNING, "ffp_prepare_async_l: stream_open failed OOM");
@@ -3855,6 +3858,10 @@ void ffp_check_buffering_l(FFPlayer *ffp)
 
     g_bw_measure_st = SDL_GetTickHR();
     g_bw_buf_time_position = buf_time_position;
+#endif
+
+#ifdef FFP_NOTIFY_FRAME_DROPS
+    ffp_notify_msg2(ffp, FFP_MSG_FRAME_DROPS_UPDATE, is->frame_drops_early + is->frame_drops_late);
 #endif
 }
 

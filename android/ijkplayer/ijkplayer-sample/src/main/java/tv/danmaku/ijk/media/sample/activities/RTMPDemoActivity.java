@@ -48,6 +48,7 @@ public class RTMPDemoActivity extends AppCompatActivity {
     private TextView mBufferingTextView;
     private TextView mFpsTextView;
     private TextView mBandwidthTextView;
+    private TextView mFrameDropsTextView;
 
     private boolean mBackPressed;
 
@@ -90,6 +91,7 @@ public class RTMPDemoActivity extends AppCompatActivity {
         mBufferingTextView = (TextView) findViewById(R.id.buffering_text_view);
         mFpsTextView = (TextView) findViewById(R.id.info_fps);
         mBandwidthTextView = (TextView) findViewById(R.id.info_bandwidth);
+        mFrameDropsTextView = (TextView) findViewById(R.id.info_framedrops);
 
         // init player
         IjkMediaPlayer.loadLibrariesOnce(null);
@@ -185,8 +187,8 @@ public class RTMPDemoActivity extends AppCompatActivity {
                 sb.append("Prepare Completed in ");
                 sb.append(prepareTime).append("ms\n");
                 sb.append("video size = ").append(mp.getVideoWidth()).append("x").append(mp.getVideoHeight()).append("\n");
-                sb.append("Average Bitrate = ").append(mp.getBitRate()).append(" bps \n");
-                sb.append("Average Bitrate = ").append(mp.getBitRate() / 8 / 1024).append(" KBps \n");
+                sb.append("Average Bitrate = ").append(mp.getBitRate()).append(" bps");
+                sb.append(" (").append(mp.getBitRate() / 8 / 1024).append(" KBps) \n");
                 if (mp.getMediaInfo() != null && mp.getMediaInfo().mMeta != null) {
                     int metaBitrate= mp.getMediaInfo().mMeta.getInt(IjkMediaMeta.IJKM_KEY_BITRATE);
                     sb.append("Metadata Bitrate =").append(metaBitrate).append("\n");
@@ -220,15 +222,18 @@ public class RTMPDemoActivity extends AppCompatActivity {
                         mBufferingTextView.setText("Buffering time " + mBufferingTime + " ms");
                         break;
                     case IMediaPlayer.MEDIA_INFO_NETWORK_BANDWIDTH: {
-                        Log.d(TAG, "onInfo: MEDIA_INFO_NETWORK_BANDWIDTH " + extra);
+                        // Log.d(TAG, "onInfo: MEDIA_INFO_NETWORK_BANDWIDTH " + extra);
                         StringBuilder sb = new StringBuilder();
-                        sb.append(String.format("Bandwidth %8d bps", extra)).append("\n");
-                        sb.append(String.format("Bandwidth %8.2f KB/s", ((double) extra) / 8 / 1024));
+                        sb.append(String.format("Bandwidth %8d bps", extra));
+                        sb.append(String.format("(%.2f KB/s)\n", ((double) extra) / 8 / 1024));
                         mBandwidthTextView.setText(sb.toString());
                         break;
                     }
                     case IMediaPlayer.MEDIA_INFO_FPS_UPDATE:
-                        mFpsTextView.setText(String.format("FPS %4d", extra));
+                        mFpsTextView.setText(String.format("FPS = %4d", extra));
+                        break;
+                    case IMediaPlayer.MEDIA_INFO_FRAME_DORPS_UPDATE:
+                        mFrameDropsTextView.setText(String.format("Frame Drops = %d", extra));
                         break;
                 }
                 return false;

@@ -137,6 +137,8 @@ enum media_info_type {
     // Custom types
     // FPS
     MEDIA_INFO_FPS_UPDATE = 2001,
+    // Frmaedrops
+    MEDIA_INFO_FRAME_DORPS_UPDATE = 2004,
 };
 
 typedef struct ijkmp_mediacodecinfo_context

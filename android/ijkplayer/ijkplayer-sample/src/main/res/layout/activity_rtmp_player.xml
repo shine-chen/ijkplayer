@@ -55,6 +55,13 @@
             android:textColor="@android:color/white"
             android:textSize="12sp"/>
         <TextView
+            android:id="@+id/info_framedrops"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"/>
+        <TextView
             android:id="@+id/info_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
