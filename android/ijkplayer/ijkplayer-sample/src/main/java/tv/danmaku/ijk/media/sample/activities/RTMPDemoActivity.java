@@ -225,7 +225,7 @@ public class RTMPDemoActivity extends AppCompatActivity {
                         // Log.d(TAG, "onInfo: MEDIA_INFO_NETWORK_BANDWIDTH " + extra);
                         StringBuilder sb = new StringBuilder();
                         sb.append(String.format("Bandwidth %8d bps", extra));
-                        sb.append(String.format("(%.2f KB/s)\n", ((double) extra) / 8 / 1024));
+                        sb.append(String.format(" (%.2f KB/s)\n", ((double) extra) / 8 / 1024));
                         mBandwidthTextView.setText(sb.toString());
                         break;
                     }
