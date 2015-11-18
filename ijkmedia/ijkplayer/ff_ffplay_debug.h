@@ -27,7 +27,9 @@
 #define FFP_SHOW_FPS_NOTIFY 2
 
 #define FFP_XPS_PERIOD (3)
-#define FFP_SHOW_FPS (FFP_SHOW_FPS_NOTIFY)
+#define FFP_SHOW_FPS (FFP_SHOW_FPS_LOG | FFP_SHOW_FPS_NOTIFY)
+//#define FFP_SHOW_FPS (FFP_SHOW_FPS_NOTIFY) // Open to receive noify only
+
 // #define FFP_SHOW_VDPS
 // #define FFP_SHOW_AUDIO_DELAY
 // #define FFP_SHOW_DEMUX_CACHE
