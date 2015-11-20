@@ -793,6 +793,17 @@ inline static void fillMetaInternal(NSMutableDictionary *meta, IjkMediaMeta *raw
              object:self];
             break;
         }
+            
+        // TODO: Post notifications from receive messages (avmsg->arg1).
+        case FFP_MSG_BANDWIDTH_UPDATE: {
+            NSLog(@"FFP_MSG_BANDWIDTH_UPDATE:\n");
+            break;
+        }
+            
+        case FFP_MSG_FPS_UPDATE: {
+            NSLog(@"FFP_MSG_FPS_UPDATE:\n");
+            break;
+        }
         default:
             // NSLog(@"unknown FFP_MSG_xxx(%d)\n", avmsg->what);
             break;
