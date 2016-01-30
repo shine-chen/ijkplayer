@@ -81,6 +81,14 @@ IJK_EXTERN NSString *const IJKMoviePlayerVideoDecoderOpenNotification;
 
 IJK_EXTERN NSString *const IJKMoviePlayerFirstVideoFrameRenderedNotification;
 IJK_EXTERN NSString *const IJKMoviePlayerFirstAudioFrameRenderedNotification;
+
+IJK_EXTERN NSString *const IJKMoivePlayerBandwidthUpdateNotification;
+
+IJK_EXTERN NSString *const IJKMoviePlayerFPSUpdateNotification;
+
+IJK_EXTERN NSString *const IJKMoviePlayerBitrateDidChangedNotification;
+
+IJK_EXTERN NSString *const IJKMoviePlayerFrameDropsUpdateNotification;
 @end
 
 #pragma mark IJKMediaResource

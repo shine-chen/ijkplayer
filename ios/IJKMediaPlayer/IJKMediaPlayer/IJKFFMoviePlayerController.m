@@ -797,13 +797,34 @@ inline static void fillMetaInternal(NSMutableDictionary *meta, IjkMediaMeta *raw
         // TODO: Post notifications from receive messages (avmsg->arg1).
         case FFP_MSG_BANDWIDTH_UPDATE: {
             NSLog(@"FFP_MSG_BANDWIDTH_UPDATE:\n");
+            NSLog(@"Bandwidth: %d", avmsg->arg1);
+            [[NSNotificationCenter defaultCenter] postNotificationName:IJKMoivePlayerBandwidthUpdateNotification object:self];
             break;
         }
             
         case FFP_MSG_FPS_UPDATE: {
             NSLog(@"FFP_MSG_FPS_UPDATE:\n");
+            NSLog(@"fps in meta: %f", self.fpsInMeta);
+            NSLog(@"fps at output: %f", self.fpsAtOutput);
+            NSLog(@"fps from calculation: %d", avmsg->arg1); // Use calculation result.
+            [[NSNotificationCenter defaultCenter] postNotificationName:IJKMoviePlayerFPSUpdateNotification object:self];
             break;
         }
+            
+        case FFP_MSG_BITRATE_CHANGED: {
+            NSLog(@"FFP_MSG_BITRATE_CHANGED:\n");
+            NSLog(@"Bitrate: %d", avmsg->arg1);
+            [[NSNotificationCenter defaultCenter] postNotificationName:IJKMoviePlayerBitrateDidChangedNotification object:self];
+            break;
+        }
+            
+        case FFP_MSG_FRAME_DROPS_UPDATE: {
+            NSLog(@"FFP_MSG_FRAME_DROPS_UPDATE:\n");
+            NSLog(@"Frame Drops: %d", avmsg->arg1);
+            [[NSNotificationCenter defaultCenter] postNotificationName:IJKMoviePlayerFrameDropsUpdateNotification object:self];
+            break;
+        }
+            
         default:
             // NSLog(@"unknown FFP_MSG_xxx(%d)\n", avmsg->what);
             break;
