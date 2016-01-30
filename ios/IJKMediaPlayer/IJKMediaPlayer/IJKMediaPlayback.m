@@ -34,3 +34,12 @@ NSString *const IJKMoviePlayerVideoDecoderOpenNotification = @"IJKMoviePlayerVid
 
 NSString *const IJKMoviePlayerFirstVideoFrameRenderedNotification = @"IJKMoviePlayerFirstVideoFrameRenderedNotification";
 NSString *const IJKMoviePlayerFirstAudioFrameRenderedNotification = @"IJKMoviePlayerFirstAudioFrameRenderedNotification";
+
+// Custom Notifications
+NSString *const IJKMoivePlayerBandwidthUpdateNotification = @"IJKMoivePlayerBandwidthUpdateNotification";
+
+NSString *const IJKMoviePlayerFPSUpdateNotification = @"IJKMoviePlayerFPSUpdateNotification";
+
+NSString *const IJKMoviePlayerBitrateDidChangedNotification = @"IJKMoviePlayerBitrateDidChangedNotification";
+
+NSString *const IJKMoviePlayerFrameDropsUpdateNotification = @"IJKMoviePlayerFrameDropsUpdateNotification";
