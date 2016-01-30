@@ -406,6 +406,9 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
 
     IMediaPlayer.OnPreparedListener mPreparedListener = new IMediaPlayer.OnPreparedListener() {
         public void onPrepared(IMediaPlayer mp) {
+
+            Log.d(TAG, "onPrepared");
+
             mCurrentState = STATE_PREPARED;
 
             // Get the capabilities of the player for this stream

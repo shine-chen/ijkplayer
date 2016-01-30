@@ -23,8 +23,13 @@
 #ifndef FFPLAY__FF_FFPLAY_DEBUG_H
 #define FFPLAY__FF_FFPLAY_DEBUG_H
 
+#define FFP_SHOW_FPS_LOG 1
+#define FFP_SHOW_FPS_NOTIFY 2
+
 #define FFP_XPS_PERIOD (3)
-// #define FFP_SHOW_FPS
+#define FFP_SHOW_FPS (FFP_SHOW_FPS_LOG | FFP_SHOW_FPS_NOTIFY)
+//#define FFP_SHOW_FPS (FFP_SHOW_FPS_NOTIFY) // Open to receive noify only
+
 // #define FFP_SHOW_VDPS
 // #define FFP_SHOW_AUDIO_DELAY
 // #define FFP_SHOW_DEMUX_CACHE
@@ -41,5 +46,8 @@
 // #define FFP_SHOW_AMC_VDPS
 // #define FFP_SHOW_AMC_DROPS
 // #define FFP_AMC_DISABLE_OUTPUT
+
+#define FFP_NOTIFY_BANDWIDTH
+#define FFP_NOTIFY_FRAME_DROPS
 
 #endif

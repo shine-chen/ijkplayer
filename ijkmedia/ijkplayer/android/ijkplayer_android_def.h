@@ -41,6 +41,8 @@ enum media_event_type {
 
 
     MEDIA_SET_VIDEO_SAR     = 10001,    // arg1 = sar.num, arg2 = sar.den
+
+    MEDIA_SET_BITRATE = 20001,   // arg1 = bitrate
 };
 
 // Generic error codes for the media player framework.  Errors are fatal, the
@@ -131,6 +133,12 @@ enum media_info_type {
 
     //100xx
     MEDIA_INFO_VIDEO_ROTATION_CHANGED = 10001,
+
+    // Custom types
+    // FPS
+    MEDIA_INFO_FPS_UPDATE = 2001,
+    // Frmaedrops
+    MEDIA_INFO_FRAME_DORPS_UPDATE = 2004,
 };
 
 typedef struct ijkmp_mediacodecinfo_context

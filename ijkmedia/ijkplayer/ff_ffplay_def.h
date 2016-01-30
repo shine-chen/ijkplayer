@@ -81,7 +81,7 @@
 #ifdef FFP_MERGE
 #define MIN_FRAMES 25
 #endif
-#define DEFAULT_MIN_FRAMES  50000
+#define DEFAULT_MIN_FRAMES  5
 #define MIN_MIN_FRAMES      5
 #define MAX_MIN_FRAMES      50000
 #define MIN_FRAMES (ffp->min_frames)

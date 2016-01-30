@@ -144,6 +144,11 @@ public class AndroidMediaPlayer extends AbstractMediaPlayer {
     }
 
     @Override
+    public int getBitRate() {
+        return 0;
+    }
+
+    @Override
     public int getVideoSarNum() {
         return 1;
     }

@@ -75,6 +75,8 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
 
     protected static final int MEDIA_SET_VIDEO_SAR = 10001;
 
+    private static final int MEDIA_SET_BIT_RATE = 20001;
+
     //----------------------------------------
     // options
     public static final int IJK_LOG_UNKNOWN = 0;
@@ -117,6 +119,8 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
     private int mVideoHeight;
     private int mVideoSarNum;
     private int mVideoSarDen;
+
+    private int mBitRate;
 
     private String mDataSource;
 
@@ -545,6 +549,11 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
     }
 
     @Override
+    public int getBitRate() {
+        return mBitRate;
+    }
+
+    @Override
     public native boolean isPlaying();
 
     @Override
@@ -782,6 +791,10 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
                 player.mVideoSarDen = msg.arg2;
                 player.notifyOnVideoSizeChanged(player.mVideoWidth, player.mVideoHeight,
                         player.mVideoSarNum, player.mVideoSarDen);
+                break;
+
+            case MEDIA_SET_BIT_RATE:
+                player.mBitRate = msg.arg1;
                 break;
 
             default:

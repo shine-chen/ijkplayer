@@ -1,0 +1,31 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".MyActivity" >
+    <item
+        android:id="@+id/action_toggle_render"
+        android:title="@string/toggle_render"
+        android:icon="@drawable/ic_action_dark_filter"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_toggle_ratio"
+        android:title="@string/toggle_ratio"
+        android:icon="@drawable/ic_action_dark_aspect_ratio"
+        app:showAsAction="ifRoom" />
+    <item android:id="@+id/action_rtmp_low"
+        android:title="Low"
+        android:orderInCategory="100"
+        app:showAsAction="ifRoom"/>
+    <item android:id="@+id/action_rtmp_medium"
+        android:title="Medium"
+        android:orderInCategory="100"
+        app:showAsAction="ifRoom"/>
+    <item android:id="@+id/action_rtmp_high"
+        android:title="High"
+        android:orderInCategory="100"
+        app:showAsAction="ifRoom"/>
+    <item android:id="@+id/action_rtmp_random"
+        android:title="Random"
+        android:orderInCategory="100"
+        app:showAsAction="ifRoom"/>
+</menu>

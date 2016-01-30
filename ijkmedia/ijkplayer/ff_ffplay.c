@@ -519,6 +519,11 @@ static int decoder_decode_frame(FFPlayer *ffp, Decoder *d, AVFrame *frame, AVSub
                     } else {
                         frame->pts = frame->pkt_dts;
                     }
+
+                    // TODO: remove this debug info
+                    // av_log(ffp, AV_LOG_DEBUG, "frame->pkt_pts=%ld", frame->pkt_pts);
+                    // av_log(ffp, AV_LOG_DEBUG, "frame->pkt_dts=%ld", frame->pkt_dts);
+                    // av_log(ffp, AV_LOG_DEBUG, "frame->pts=%ld", frame->pts);
                 }
                 }
                 break;
@@ -747,6 +752,7 @@ static void free_picture(Frame *vp)
 #ifdef FFP_SHOW_FPS
 static int g_fps_counter = 0;
 static int64_t g_fps_total_time = 0;
+static int64_t g_fps_start = 0;
 #endif
 static void video_image_display2(FFPlayer *ffp)
 {
@@ -756,7 +762,9 @@ static void video_image_display2(FFPlayer *ffp)
     vp = frame_queue_peek(&is->pictq);
     if (vp->bmp) {
 #ifdef FFP_SHOW_FPS
-        int64_t start = SDL_GetTickHR();
+        if (g_fps_start == 0) {
+            g_fps_start = SDL_GetTickHR();
+        }
 #endif
         SDL_VoutDisplayYUVOverlay(ffp->vout, vp->bmp);
         if (!ffp->first_video_frame_rendered) {
@@ -764,20 +772,29 @@ static void video_image_display2(FFPlayer *ffp)
             ffp_notify_msg1(ffp, FFP_MSG_VIDEO_RENDERING_START);
         }
 #ifdef FFP_SHOW_FPS
-        int64_t dur = SDL_GetTickHR() - start;
-        g_fps_total_time += dur;
+        int64_t dur = SDL_GetTickHR() - g_fps_start;
         g_fps_counter++;
-        int64_t avg_frame_time = 0;
-        if (g_fps_counter > 0)
-            avg_frame_time = g_fps_total_time / g_fps_counter;
-        double fps = 0;
-        if (avg_frame_time > 0)
-            fps = 1.0f / avg_frame_time * 1000;
-        av_log(ffp, AV_LOG_DEBUG, "fps:  [%f][%d] %"PRId64" ms/frame, fps=%f, +%"PRId64"\n",
-            vp->pts, g_fps_counter, (int64_t)avg_frame_time, fps, dur);
-        if (g_fps_total_time >= FFP_XPS_PERIOD) {
-            g_fps_total_time -= avg_frame_time;
-            g_fps_counter--;
+        if (dur > 100) {
+            g_fps_total_time += dur;
+            g_fps_start = 0;
+            int64_t avg_frame_time = 0;
+            if (g_fps_counter > 0)
+                avg_frame_time = g_fps_total_time / g_fps_counter;
+            double fps = 0;
+            if (avg_frame_time > 0)
+                fps = 1.0f / avg_frame_time * 1000;
+            if (FFP_SHOW_FPS & FFP_SHOW_FPS_LOG) {
+                av_log(ffp, AV_LOG_DEBUG, "fps:  [%f][%d] %"PRId64" ms/frame, fps=%f, +%"PRId64"\n",
+                    vp->pts, g_fps_counter, (int64_t)avg_frame_time, fps, dur);
+            }
+            if (FFP_SHOW_FPS & FFP_SHOW_FPS_NOTIFY) {
+                ffp_notify_msg2(ffp, FFP_MSG_FPS_UPDATE, (int) fps);
+            }
+
+            if (g_fps_total_time >= FFP_XPS_PERIOD) {
+                g_fps_total_time -= avg_frame_time * g_fps_counter;
+                g_fps_counter = 0;
+            }
         }
 #endif
     }
@@ -2299,6 +2316,9 @@ static int stream_component_open(FFPlayer *ffp, int stream_index)
         decoder_start(&is->viddec, video_thread, ffp, "ff_video_dec");
         is->queue_attachments_req = 1;
 
+        // TODO: remove the debug info
+        // av_log(ffp, AV_LOG_DEBUG, "video_st->start_time=%ld", is->video_st->start_time);
+
         if(is->video_st->avg_frame_rate.den && is->video_st->avg_frame_rate.num) {
             double fps = av_q2d(is->video_st->avg_frame_rate);
             SDL_ProfilerReset(&is->viddec.decode_profiler, fps + 0.5);
@@ -2330,6 +2350,11 @@ static int stream_component_open(FFPlayer *ffp, int stream_index)
     default:
         break;
     }
+
+    // Log bitrate
+    av_log(ffp, AV_LOG_WARNING, "bitrate = %d", avctx->bit_rate);
+    
+
 fail:
     av_dict_free(&opts);
 
@@ -2435,6 +2460,7 @@ static int read_thread(void *arg)
     int last_error = 0;
     int64_t prev_io_tick_counter = 0;
     int64_t io_tick_counter = 0;
+    int bitrate = 0;
 
     memset(st_index, -1, sizeof(st_index));
     is->last_video_stream = is->video_stream = -1;
@@ -2603,11 +2629,13 @@ static int read_thread(void *arg)
     /* open the streams */
     if (st_index[AVMEDIA_TYPE_AUDIO] >= 0) {
         stream_component_open(ffp, st_index[AVMEDIA_TYPE_AUDIO]);
+        bitrate += is->audio_st->codec->bit_rate;
     }
 
     ret = -1;
     if (st_index[AVMEDIA_TYPE_VIDEO] >= 0) {
         ret = stream_component_open(ffp, st_index[AVMEDIA_TYPE_VIDEO]);
+        bitrate += is->video_st->codec->bit_rate;
     }
     if (is->show_mode == SHOW_MODE_NONE)
         is->show_mode = ret >= 0 ? SHOW_MODE_VIDEO : SHOW_MODE_RDFT;
@@ -2643,6 +2671,7 @@ static int read_thread(void *arg)
         AVCodecContext *avctx = is->video_st->codec;
         ffp_notify_msg3(ffp, FFP_MSG_VIDEO_SIZE_CHANGED, avctx->width, avctx->height);
         ffp_notify_msg3(ffp, FFP_MSG_SAR_CHANGED, avctx->sample_aspect_ratio.num, avctx->sample_aspect_ratio.den);
+        ffp_notify_msg2(ffp, FFP_MSG_BITRATE_CHANGED, bitrate);
     }
     ffp->prepared = true;
     ffp_notify_msg1(ffp, FFP_MSG_PREPARED);
@@ -3434,6 +3463,9 @@ int ffp_prepare_async_l(FFPlayer *ffp, const char *file_name)
             return -1;
     }
 
+    // Set to show status
+    // ffp->show_status = true;
+
     VideoState *is = stream_open(ffp, file_name, NULL);
     if (!is) {
         av_log(NULL, AV_LOG_WARNING, "ffp_prepare_async_l: stream_open failed OOM");
@@ -3683,6 +3715,12 @@ void ffp_toggle_buffering(FFPlayer *ffp, int start_buffering)
     SDL_UnlockMutex(ffp->is->play_mutex);
 }
 
+
+#ifdef FFP_NOTIFY_BANDWIDTH
+    static int64_t g_bw_measure_st = 0;
+    static int64_t g_bw_buf_time_position = 0;
+#endif
+
 void ffp_check_buffering_l(FFPlayer *ffp)
 {
     VideoState *is            = ffp->is;
@@ -3723,7 +3761,7 @@ void ffp_check_buffering_l(FFPlayer *ffp)
             av_log(ffp, AV_LOG_DEBUG, "video cache=%%%d milli:(%d/%d) bytes:(%d/%d) packet:(%d/%d)\n", video_cached_percent,
                   (int)video_cached_duration, hwm_in_ms,
                   is->videoq.size, hwm_in_bytes,
-                  is->audioq.nb_packets, MIN_FRAMES);
+                  is->videoq.nb_packets, MIN_FRAMES);
 #endif
         }
 
@@ -3804,6 +3842,27 @@ void ffp_check_buffering_l(FFPlayer *ffp)
             }
         }
     }
+
+#ifdef FFP_NOTIFY_BANDWIDTH
+    int bitrate = 0;
+    if (is->audio_st)
+        bitrate += is->audio_st->codec->bit_rate;
+    if (is->video_st)
+        bitrate += is->video_st->codec->bit_rate;
+
+    int64_t bw_measure_dur = SDL_GetTickHR() - g_bw_measure_st;
+    int64_t buf_time_position_delta = buf_time_position - g_bw_buf_time_position;
+    int64_t bandwidth = buf_time_position_delta * bitrate / bw_measure_dur;
+    // av_log(ffp, AV_LOG_DEBUG, "bandwidth=%"PRId64"\n", bandwidth);
+    ffp_notify_msg2(ffp, FFP_MSG_BANDWIDTH_UPDATE, (int) bandwidth);
+
+    g_bw_measure_st = SDL_GetTickHR();
+    g_bw_buf_time_position = buf_time_position;
+#endif
+
+#ifdef FFP_NOTIFY_FRAME_DROPS
+    ffp_notify_msg2(ffp, FFP_MSG_FRAME_DROPS_UPDATE, is->frame_drops_early + is->frame_drops_late);
+#endif
 }
 
 int ffp_video_thread(FFPlayer *ffp)
